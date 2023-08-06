@@ -1,6 +1,7 @@
 import sys
 import pygame
 from spaceship import Ship
+from bullet import Bullet
 from settings import Settings
 
 class AlienInvasion:
@@ -28,13 +29,23 @@ class AlienInvasion:
         self.bg_image = pygame.image.load('images/blacky.png')
         self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))  
         self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
+
+        #load audio
+        pygame.mixer.music.load("audio/julia.mp3")
+        pygame.mixer.music.set_volume(0.6)
+        pygame.mixer.music.play(-1)
+
 
     def run_game(self):
         #start the main loop of the game
+        pygame.mixer.music.set_endevent(pygame.USEREVENT)  # Music end event
         while True:
             #keyboard and mouse events
             self._check_events()
             self.ship.update()
+            self.bullets.update()
+            self._clean_bullets()
             self._update_screen()
             self.clock.tick(60)
 
@@ -42,6 +53,8 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            if event.type == pygame.USEREVENT:
+                pygame.mixer.music.play(-1)  # Restart the music    
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
@@ -53,7 +66,9 @@ class AlienInvasion:
             elif event.key == pygame.K_LEFT:
                 self.ship.moving_left = True
             elif event.key == pygame.K_q:
-                 sys.exit()
+                sys.exit()
+            elif event.key == pygame.K_SPACE:
+                self._fire_bullet()
 
     def _check_keyup_events(self, event):        
             if event.key == pygame.K_RIGHT:
@@ -61,13 +76,28 @@ class AlienInvasion:
             elif event.key == pygame.K_LEFT:
                 self.ship.moving_left = False   
             elif event.key == pygame.K_q:
-                 sys.exit()            
+                 sys.exit()           
+
+    def _fire_bullet(self):
+        if len(self.bullets) < self.settings.bullets_allowed:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
+            new_bullet.bullet_sound.play()
+
+    def _clean_bullets(self):
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <=0:
+                self.bullets.remove(bullet)
 
     def _update_screen(self):
             #redraw screen color
             self.screen.fill(self.bg_color)          
             #redraw screen color bg
             self.screen.blit(self.bg_image, (0, 0))
+            #bullets
+            for bullet in self.bullets.sprites():
+                bullet.draw_bullet()
+
             self.ship.blitme()
             #most recent screen visibility
             pygame.display.flip()
