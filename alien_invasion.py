@@ -1,12 +1,13 @@
 import sys
 import pygame
 from spaceship import Ship
+from alien import Alien
 from bullet import Bullet
 from settings import Settings
 
 class AlienInvasion:
 
-    def __init__(self):
+    def __init__(self):   
         #initialize the game
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -30,7 +31,8 @@ class AlienInvasion:
         self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))  
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
-
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
         #load audio
         pygame.mixer.music.load("audio/julia.mp3")
         pygame.mixer.music.set_volume(0.6)
@@ -89,6 +91,12 @@ class AlienInvasion:
             if bullet.rect.bottom <=0:
                 self.bullets.remove(bullet)
 
+    def _create_fleet(self):
+        alien = Alien(self)
+        alien_width = alien.rect.width
+        
+        self.aliens.add(alien)
+
     def _update_screen(self):
             #redraw screen color
             self.screen.fill(self.bg_color)          
@@ -99,6 +107,7 @@ class AlienInvasion:
                 bullet.draw_bullet()
 
             self.ship.blitme()
+            self.aliens.draw(self.screen)
             #most recent screen visibility
             pygame.display.flip()
 
