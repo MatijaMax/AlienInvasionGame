@@ -27,7 +27,7 @@ class AlienInvasion:
 
         #bg image
         #load and resize
-        self.bg_image = pygame.image.load('images/blacky.png')
+        self.bg_image = pygame.image.load('images/invasion_bg.png')
         self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))  
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -88,14 +88,26 @@ class AlienInvasion:
 
     def _clean_bullets(self):
         for bullet in self.bullets.copy():
-            if bullet.rect.bottom <=0:
+            if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
     def _create_fleet(self):
         alien = Alien(self)
-        alien_width = alien.rect.width
+        alien_width, alien_height = alien.rect.size
+        current_x, current_y = alien_width, alien_height
+        while current_y < (self.settings.screen_height - 4 * alien_height):
+            while current_x < (self.settings.screen_width - 2 * alien_width):
+                self._create_alien(current_x, current_y)
+                current_x += 2 * alien_width
+            current_x = alien_width
+            current_y += 2 * alien_height    
         
-        self.aliens.add(alien)
+    def _create_alien(self, current_x, current_y):
+        new_alien = Alien(self)
+        new_alien.x = current_x
+        new_alien.rect.x = current_x
+        new_alien.rect.y = current_y
+        self.aliens.add(new_alien)        
 
     def _update_screen(self):
             #redraw screen color
