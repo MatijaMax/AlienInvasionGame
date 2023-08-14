@@ -4,22 +4,23 @@ from spaceship import Ship
 from alien import Alien
 from bullet import Bullet
 from settings import Settings
+import time
 
 class AlienInvasion:
 
     def __init__(self):   
         #initialize the game
         pygame.init()
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock() 
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
-
+        self.boom_sound = pygame.mixer.Sound("audio/boom.wav")
+        self.wave_sound = pygame.mixer.Sound("audio/new_wave.wav")
+        self.previous_collisions = {} # for the boom sound :)
         # self.screen = pygame.display.set_mode((0, 0) , pygame.FULLSCREEN)
         # self.settings.screen_width = self.screen.get_rect().width
         # self.settings.screen_height = self.screen.get_rect().height
         
-
-
         pygame.display.set_caption("Alien Invasion")
 
         #bg color
@@ -47,6 +48,9 @@ class AlienInvasion:
             self._check_events()
             self.ship.update()
             self.bullets.update()
+            self._new_fleet()
+            self._alien_hit()
+            self._update_aliens()
             self._clean_bullets()
             self._update_screen()
             self.clock.tick(60)
@@ -101,13 +105,32 @@ class AlienInvasion:
                 current_x += 2 * alien_width
             current_x = alien_width
             current_y += 2 * alien_height    
+
+    def _new_fleet(self):
+         if not self.aliens:
+              self.wave_sound.play()
+              time.sleep(1)
+              self.bullets.empty()
+              self._create_fleet()
         
     def _create_alien(self, current_x, current_y):
         new_alien = Alien(self)
         new_alien.x = current_x
         new_alien.rect.x = current_x
         new_alien.rect.y = current_y
-        self.aliens.add(new_alien)        
+        self.aliens.add(new_alien)       
+
+    def _check_fleet_edges(self):
+         for alien in self.aliens.sprites():
+              if alien.check_edges():
+                   self._change_fleet_direction()
+                   break
+              
+    def _change_fleet_direction(self):
+         for alien in self.aliens.sprites():
+              alien.rect.y += self.settings.fleet_drop_speed
+         self.settings.fleet_direction *= -1
+
 
     def _update_screen(self):
             #redraw screen color
@@ -123,6 +146,16 @@ class AlienInvasion:
             #most recent screen visibility
             pygame.display.flip()
 
+    def _update_aliens(self):
+            self._check_fleet_edges()
+            self.aliens.update()
+
+    def _alien_hit(self):
+        previous_collisions = self.previous_collisions.copy()
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+
+        if collisions != previous_collisions:
+            self.boom_sound.play()
 
 if __name__ == '__main__':
     #main method, initiate and run the game
