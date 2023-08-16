@@ -15,8 +15,16 @@ class Settings:
         self.bullet_color = (0, 255, 0)
         self.bullets_allowed = 13
 
+        #plasma settings
+        self.plasma_speed = 4.0
+        self.plasma_width = 27
+        self.plasma_height = 33
+        self.plasma_color = (0, 255, 0)
+        self.plasma_allowed = 13
+
         #alien settings
         self.alien_speed = 1.0
         self.fleet_drop_speed = 10
         self.fleet_direction = 1 # (1=right) ((-1)=left)
+        self.ship_limit = 40
         

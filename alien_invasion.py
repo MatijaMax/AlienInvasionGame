@@ -5,6 +5,8 @@ from alien import Alien
 from bullet import Bullet
 from settings import Settings
 import time
+from game_stats import GameStats
+from plasma_ball import Plasma
 
 class AlienInvasion:
 
@@ -16,12 +18,14 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         self.boom_sound = pygame.mixer.Sound("audio/boom.wav")
         self.wave_sound = pygame.mixer.Sound("audio/new_wave.wav")
+        self.ship_hit = pygame.mixer.Sound("audio/shiphit.mp3")
         self.previous_collisions = {} # for the boom sound :)
         # self.screen = pygame.display.set_mode((0, 0) , pygame.FULLSCREEN)
         # self.settings.screen_width = self.screen.get_rect().width
         # self.settings.screen_height = self.screen.get_rect().height
         
         pygame.display.set_caption("Alien Invasion")
+        self.stats = GameStats(self)
 
         #bg color
         self.bg_color = self.settings.bg_color
@@ -32,6 +36,7 @@ class AlienInvasion:
         self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))  
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.plasmas = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
         #load audio
@@ -48,6 +53,7 @@ class AlienInvasion:
             self._check_events()
             self.ship.update()
             self.bullets.update()
+            self.plasmas.update()
             self._new_fleet()
             self._alien_hit()
             self._update_aliens()
@@ -95,6 +101,10 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
+        for plasma in self.plasmas.copy():
+            if plasma.rect.bottom <= 0:
+                self.plasmas.remove(plasma)
+
     def _create_fleet(self):
         alien = Alien(self)
         alien_width, alien_height = alien.rect.size
@@ -140,15 +150,46 @@ class AlienInvasion:
             #bullets
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet()
-
+            
             self.ship.blitme()
             self.aliens.draw(self.screen)
+            for plasma in self.plasmas.sprites():
+                plasma.draw_bullet()
             #most recent screen visibility
             pygame.display.flip()
 
     def _update_aliens(self):
             self._check_fleet_edges()
             self.aliens.update()
+
+            if pygame.sprite.spritecollideany(self.ship, self.aliens):
+                self._ship_hit()
+
+            if pygame.sprite.spritecollideany(self.ship, self.plasmas):
+                self._ship_hit_plasma()
+
+    def _ship_hit(self):
+            self.stats.ships_left -= 1
+            self.ship_hit.play()
+            time.sleep(1)
+            self.bullets.empty()
+            self.aliens.empty()
+            self._create_fleet()
+            self.ship.center_ship()
+            self.wave_sound.play()
+            time.sleep(1)
+
+    def _ship_hit_plasma(self):
+            self.ship_hit.play()
+            time.sleep(1)
+            self.bullets.empty()
+            self.plasmas.empty()
+            self.aliens.empty()
+            self._create_fleet()
+            self.ship.center_ship()
+            self.wave_sound.play()
+            time.sleep(1)
+
 
     def _alien_hit(self):
         previous_collisions = self.previous_collisions.copy()

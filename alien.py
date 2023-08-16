@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
+from plasma_ball import Plasma
 import random
 
 class Alien(Sprite):
@@ -8,6 +9,7 @@ class Alien(Sprite):
         super().__init__()
 
         #init alien
+        self.ai_game = ai_game
         self.screen = ai_game.screen
         self.settings = ai_game.settings
 
@@ -38,6 +40,16 @@ class Alien(Sprite):
     def update(self):
         self.x += self.settings.alien_speed * self.settings.fleet_direction
         self.rect.x = self.x
+        if (random.randint(1, 2000) == 1):
+            self.fire_plasma()
+
+    def fire_plasma(self):
+        new_plasma = Plasma(self.ai_game, self)
+        # new_plasma.rect.midtop = self.rect.midtop
+        new_plasma.rect.x = self.rect.x
+        new_plasma.rect.y = self.rect.y
+        self.ai_game.plasmas.add(new_plasma)
+        new_plasma.bullet_sound.play()
 
     def check_edges(self):
         screen_rect = self.screen.get_rect()
