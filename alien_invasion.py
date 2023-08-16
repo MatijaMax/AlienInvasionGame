@@ -7,6 +7,7 @@ from settings import Settings
 import time
 from game_stats import GameStats
 from plasma_ball import Plasma
+from button import Button
 
 class AlienInvasion:
 
@@ -26,6 +27,10 @@ class AlienInvasion:
         
         pygame.display.set_caption("Alien Invasion")
         self.stats = GameStats(self)
+        self.game_active = False
+        self.play_button = Button(self)
+        self.menu_music = True
+
 
         #bg color
         self.bg_color = self.settings.bg_color
@@ -33,14 +38,16 @@ class AlienInvasion:
         #bg image
         #load and resize
         self.bg_image = pygame.image.load('images/invasion_bg.png')
-        self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))  
+        self.play_bg = pygame.image.load('images/play_bg.jpg')
+        self.bg_image = pygame.transform.scale(self.bg_image, (self.settings.screen_width, self.settings.screen_height))
+        self.play_bg = pygame.transform.scale(self.play_bg, (self.settings.screen_width, self.settings.screen_height))  
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.plasmas = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
         #load audio
-        pygame.mixer.music.load("audio/julia.mp3")
+        pygame.mixer.music.load("audio/a_bit_of_hope.mp3")
         pygame.mixer.music.set_volume(0.6)
         pygame.mixer.music.play(-1)
 
@@ -51,13 +58,16 @@ class AlienInvasion:
         while True:
             #keyboard and mouse events
             self._check_events()
-            self.ship.update()
-            self.bullets.update()
-            self.plasmas.update()
-            self._new_fleet()
-            self._alien_hit()
-            self._update_aliens()
-            self._clean_bullets()
+
+            if self.game_active:
+                self.ship.update()
+                self.bullets.update()
+                self.plasmas.update()
+                self._new_fleet()
+                self._alien_hit()
+                self._update_aliens()
+                self._clean_bullets()
+
             self._update_screen()
             self.clock.tick(60)
 
@@ -71,6 +81,42 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
+
+    def _check_play_button(self, mouse_pos):
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            self.stats.reset_stats()
+            self.game_active = True
+            self.bullets.empty()
+            self.aliens.empty()
+            self.plasmas.empty()
+            self._create_fleet()
+            self.ship.center_ship()
+            pygame.mixer.music.load("audio/julia.mp3")
+            pygame.mixer.music.set_volume(0.6)
+            pygame.mixer.music.play(-1)
+            self.menu_music = False
+            pygame.mouse.set_visible(False)
+
+    def _play_shortcut(self):
+        if not self.game_active:
+            self.stats.reset_stats()
+            self.game_active = True
+            self.bullets.empty()
+            self.aliens.empty()
+            self.plasmas.empty()
+            self._create_fleet()
+            self.ship.center_ship()
+            pygame.mixer.music.load("audio/julia.mp3")
+            pygame.mixer.music.set_volume(0.6)
+            pygame.mixer.music.play(-1)
+            self.menu_music = False
+            pygame.mouse.set_visible(False)
+
+        
 
     def _check_keydown_events(self, event):        
             if event.key == pygame.K_RIGHT:
@@ -81,6 +127,8 @@ class AlienInvasion:
                 sys.exit()
             elif event.key == pygame.K_SPACE:
                 self._fire_bullet()
+            elif event.key == pygame.K_p:
+                self._play_shortcut()
 
     def _check_keyup_events(self, event):        
             if event.key == pygame.K_RIGHT:
@@ -156,6 +204,15 @@ class AlienInvasion:
             for plasma in self.plasmas.sprites():
                 plasma.draw_bullet()
             #most recent screen visibility
+            if not self.game_active:
+                if not self.menu_music:
+                    self.menu_music = True
+                    pygame.mixer.music.load("audio/a_bit_of_hope.mp3")
+                    pygame.mixer.music.set_volume(0.6)
+                    pygame.mixer.music.play(-1)
+                self.screen.blit(self.play_bg, (0, 0))
+                self.play_button.draw_button()
+
             pygame.display.flip()
 
     def _update_aliens(self):
@@ -165,10 +222,14 @@ class AlienInvasion:
             if pygame.sprite.spritecollideany(self.ship, self.aliens):
                 self._ship_hit()
 
+            self._check_aliens_bottom()
+
             if pygame.sprite.spritecollideany(self.ship, self.plasmas):
                 self._ship_hit_plasma()
 
+
     def _ship_hit(self):
+        if self.stats.ships_left > 0:
             self.stats.ships_left -= 1
             self.ship_hit.play()
             time.sleep(1)
@@ -178,8 +239,13 @@ class AlienInvasion:
             self.ship.center_ship()
             self.wave_sound.play()
             time.sleep(1)
+        else:
+            self.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _ship_hit_plasma(self):
+        if self.stats.ships_left > 0:
+            self.stats.ships_left -= 1
             self.ship_hit.play()
             time.sleep(1)
             self.bullets.empty()
@@ -189,6 +255,9 @@ class AlienInvasion:
             self.ship.center_ship()
             self.wave_sound.play()
             time.sleep(1)
+        else:
+            self.game_active = False
+            pygame.mouse.set_visible(True)
 
 
     def _alien_hit(self):
@@ -197,6 +266,15 @@ class AlienInvasion:
 
         if collisions != previous_collisions:
             self.boom_sound.play()
+            self.settings.aliens_killed += 1
+            print(self.settings.aliens_killed)
+
+
+    def _check_aliens_bottom(self):
+         for alien in self.aliens.sprites():
+              if alien.rect.bottom >= self.settings.screen_height:
+                   self._ship_hit()
+                   break
 
 if __name__ == '__main__':
     #main method, initiate and run the game

@@ -24,7 +24,10 @@ class Settings:
 
         #alien settings
         self.alien_speed = 1.0
-        self.fleet_drop_speed = 10
+        self.fleet_drop_speed = 20
         self.fleet_direction = 1 # (1=right) ((-1)=left)
-        self.ship_limit = 40
+        self.ship_limit = 3
+
+        #score
+        self.aliens_killed = 0
         

@@ -12,6 +12,8 @@ class Alien(Sprite):
         self.ai_game = ai_game
         self.screen = ai_game.screen
         self.settings = ai_game.settings
+        self.sans = False
+        self.bill = False
 
         #load image
         #easter egg randomizer
@@ -19,9 +21,11 @@ class Alien(Sprite):
             if (random.randint(1, 2) == 1):
                 self.image = pygame.image.load('images/bill_cipher.png')
                 self.image = pygame.transform.scale(self.image, (59, 89))
+                self.bill = True
             else:
                 self.image = pygame.image.load('images/easter_egg.png')
                 self.image = pygame.transform.scale(self.image, (59, 89))
+                self.sans = True
 
         else:
             self.image = pygame.image.load('images/invader.png')
