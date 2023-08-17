@@ -8,6 +8,7 @@ import time
 from game_stats import GameStats
 from plasma_ball import Plasma
 from button import Button
+from scoreboard import Scoreboard
 
 class AlienInvasion:
 
@@ -27,6 +28,7 @@ class AlienInvasion:
         
         pygame.display.set_caption("Alien Invasion")
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
         self.game_active = False
         self.play_button = Button(self)
         self.menu_music = True
@@ -89,11 +91,13 @@ class AlienInvasion:
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.game_active:
             self.stats.reset_stats()
+            self.sb.prep_score()
             self.game_active = True
             self.bullets.empty()
             self.aliens.empty()
             self.plasmas.empty()
             self._create_fleet()
+            self.settings.initialize_dynamic_settings()
             self.ship.center_ship()
             pygame.mixer.music.load("audio/julia.mp3")
             pygame.mixer.music.set_volume(0.6)
@@ -104,11 +108,13 @@ class AlienInvasion:
     def _play_shortcut(self):
         if not self.game_active:
             self.stats.reset_stats()
+            self.sb.prep_score()
             self.game_active = True
             self.bullets.empty()
             self.aliens.empty()
             self.plasmas.empty()
             self._create_fleet()
+            self.settings.initialize_dynamic_settings()
             self.ship.center_ship()
             pygame.mixer.music.load("audio/julia.mp3")
             pygame.mixer.music.set_volume(0.6)
@@ -142,7 +148,8 @@ class AlienInvasion:
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
-            new_bullet.bullet_sound.play()
+            if self.game_active:
+                new_bullet.bullet_sound.play()
 
     def _clean_bullets(self):
         for bullet in self.bullets.copy():
@@ -166,6 +173,7 @@ class AlienInvasion:
 
     def _new_fleet(self):
          if not self.aliens:
+              self.settings.increase_speed()
               self.wave_sound.play()
               time.sleep(1)
               self.bullets.empty()
@@ -201,6 +209,7 @@ class AlienInvasion:
             
             self.ship.blitme()
             self.aliens.draw(self.screen)
+            self.sb.show_score()
             for plasma in self.plasmas.sprites():
                 plasma.draw_bullet()
             #most recent screen visibility
@@ -265,6 +274,8 @@ class AlienInvasion:
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
 
         if collisions != previous_collisions:
+            self.stats.score += self.settings.alien_points
+            self.sb.prep_score()
             self.boom_sound.play()
             self.settings.aliens_killed += 1
             print(self.settings.aliens_killed)

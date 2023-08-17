@@ -44,7 +44,7 @@ class Alien(Sprite):
     def update(self):
         self.x += self.settings.alien_speed * self.settings.fleet_direction
         self.rect.x = self.x
-        if (random.randint(1, 2000) == 1):
+        if (random.randint(1, 1600) == 1):
             self.fire_plasma()
 
     def fire_plasma(self):
