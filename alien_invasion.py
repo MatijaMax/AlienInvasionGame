@@ -92,6 +92,8 @@ class AlienInvasion:
         if button_clicked and not self.game_active:
             self.stats.reset_stats()
             self.sb.prep_score()
+            self.sb.prep_high_score()
+            self.sb.prep_hearts()
             self.game_active = True
             self.bullets.empty()
             self.aliens.empty()
@@ -109,6 +111,8 @@ class AlienInvasion:
         if not self.game_active:
             self.stats.reset_stats()
             self.sb.prep_score()
+            self.sb.prep_high_score()
+            self.sb.prep_hearts()
             self.game_active = True
             self.bullets.empty()
             self.aliens.empty()
@@ -247,6 +251,7 @@ class AlienInvasion:
             self._create_fleet()
             self.ship.center_ship()
             self.wave_sound.play()
+            self.sb.prep_hearts()
             time.sleep(1)
         else:
             self.game_active = False
@@ -263,6 +268,7 @@ class AlienInvasion:
             self._create_fleet()
             self.ship.center_ship()
             self.wave_sound.play()
+            self.sb.prep_hearts()
             time.sleep(1)
         else:
             self.game_active = False
@@ -276,6 +282,7 @@ class AlienInvasion:
         if collisions != previous_collisions:
             self.stats.score += self.settings.alien_points
             self.sb.prep_score()
+            self.sb.check_high_score() 
             self.boom_sound.play()
             self.settings.aliens_killed += 1
             print(self.settings.aliens_killed)
