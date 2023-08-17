@@ -11,7 +11,7 @@ class Settings:
         self.bullet_width = 7
         self.bullet_height = 13
         self.bullet_color = (0, 255, 0)
-        self.bullets_allowed = 15
+        self.bullets_allowed = 10
 
         #plasma settings
         self.plasma_speed = 4.0
@@ -41,7 +41,7 @@ class Settings:
         self.alien_points = 50
 
     def increase_speed(self):
-        self.ship_speed *= 2 * self.speedup_scale
-        self.bullet_speed *= 2 * self.speedup_scale
-        self.alien_speed *= 2 * self.speedup_scale
+        self.ship_speed *= self.speedup_scale
+        self.bullet_speed *= self.speedup_scale
+        self.alien_speed *=  self.speedup_scale
         self.alien_points = int(self.alien_points * self.score_scale)

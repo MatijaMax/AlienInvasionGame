@@ -285,7 +285,7 @@ class AlienInvasion:
             self.sb.check_high_score() 
             self.boom_sound.play()
             self.settings.aliens_killed += 1
-            print(self.settings.aliens_killed)
+            # print(self.settings.aliens_killed)
 
 
     def _check_aliens_bottom(self):
