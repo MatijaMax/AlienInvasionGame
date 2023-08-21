@@ -9,12 +9,27 @@ class Plasma(Sprite):
         self.image = pygame.image.load('images/blueball.png')
         self.image = pygame.transform.scale(self.image, (20, 25))
         self.image.set_colorkey((0, 0, 0))  # Set black color as transparent
+
+        if (alien.bill):
+            self.image = pygame.image.load('images/bill_comet.png')
+            self.image = pygame.transform.scale(self.image, (200, 200))
+            self.image.set_colorkey((0, 0, 0))  # Set black color as transparent
+
+        if (alien.sans):
+            self.image = pygame.image.load('images/sans_attack.jpg')
+            self.image = pygame.transform.scale(self.image, (40, 45))
+            self.image.set_colorkey((0, 0, 0))  # Set black color as transparent
+
         self.rect = self.image.get_rect()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         self.color = self.settings.bullet_color
-        self.bullet_sound = pygame.mixer.Sound("audio/lasershot.wav")   
-
+        if(alien.bill):
+            self.bullet_sound = pygame.mixer.Sound("audio/bill_shot.wav") 
+        elif(alien.sans):
+            self.bullet_sound = pygame.mixer.Sound("audio/sans_sound.wav")      
+        else:
+            self.bullet_sound = pygame.mixer.Sound("audio/lasershot.wav")    
         # self.rect = pygame.Rect(0, 0, self.settings.bullet_width, self.settings.bullet_height)
         self.rect = self.image.get_rect()
         

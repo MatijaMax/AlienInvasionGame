@@ -298,4 +298,3 @@ if __name__ == '__main__':
     #main method, initiate and run the game
     alien_invasion = AlienInvasion()
     alien_invasion.run_game()
-
