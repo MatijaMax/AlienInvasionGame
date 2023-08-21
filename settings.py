@@ -1,3 +1,5 @@
+
+
 class Settings:
 
     def __init__(self):
@@ -14,7 +16,7 @@ class Settings:
         self.bullets_allowed = 10
 
         #plasma settings
-        self.plasma_speed = 4.0
+        self.plasma_speed = 3.0
         self.plasma_width = 27
         self.plasma_height = 33
         self.plasma_color = (0, 255, 0)
@@ -34,14 +36,28 @@ class Settings:
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
-        self.ship_speed = 6.5
-        self.bullet_speed = 4.5
-        self.alien_speed = 1.0
+        # self.ship_speed = 6.5
+        # self.bullet_speed = 4.5
+        # self.alien_speed = 1.0
         self.fleet_direction = 1 # (1=right) ((-1)=left)
-        self.alien_points = 50
+        self.alien_points = 10
+
+        self.ship_speed = 6.5 
+        self.bullet_speed = 4.5 
+        self.alien_speed = 1.0 
+
 
     def increase_speed(self):
         self.ship_speed *= self.speedup_scale
         self.bullet_speed *= self.speedup_scale
         self.alien_speed *=  self.speedup_scale
+        #level cap
+        if(self.alien_speed >= 1.0 * (1.1 ** 10)):
+            self.ship_speed = 6.5 * (1.1 ** 10)
+            self.bullet_speed = 4.5 * (1.1 ** 10)
+            self.alien_speed = 1.0 * (1.1 ** 10)           
         self.alien_points = int(self.alien_points * self.score_scale)
+        #score cap
+        self.alien_points = int(self.alien_points * self.score_scale)
+        if (self.alien_points >= 2500):
+            self.alien_points = 2500
