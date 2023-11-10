@@ -61,3 +61,5 @@ class Settings:
         self.alien_points = int(self.alien_points * self.score_scale)
         if (self.alien_points >= 2500):
             self.alien_points = 2500
+
+        # self.alien_speed = 1.0

@@ -17,7 +17,7 @@ class Alien(Sprite):
 
         #load image
         #easter egg randomizer
-        if (random.randint(1, 100) == 1):
+        if (random.randint(1, 20) == 1):
             if (random.randint(1, 2) == 1):
                 self.image = pygame.image.load('images/bill_cipher.png')
                 self.image = pygame.transform.scale(self.image, (59, 89))
