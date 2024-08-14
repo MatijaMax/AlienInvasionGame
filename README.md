@@ -1,5 +1,5 @@
-# AlienInvasionGame
-Pygame Project
+# AlienInvasionGame (Pygame Project)
+Download the repo, click on the .exe file and have fun! 🕹
 ###
 ![1](https://github.com/MatijaMax/AlienInvasionGame/assets/116630740/95654451-e131-4027-8888-60927ecf9f36)
 ###
